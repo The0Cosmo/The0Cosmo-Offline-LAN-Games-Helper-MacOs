@@ -1,0 +1,19 @@
+name: Swift macOS Build Check
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build:
+    runs-on: macos-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Build Swift package
+        working-directory: OfflineLANHelperMac
+        run: swift build -c release
