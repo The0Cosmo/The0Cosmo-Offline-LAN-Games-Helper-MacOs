@@ -457,6 +457,7 @@ struct ContentView: View {
             return
         }
         configStore.setServerInstallDirectory(installURL.path, for: game)
+        log("Optional internet action: SteamCMD may connect to official Steam services.")
 
         let process = Process()
         process.executableURL = URL(fileURLWithPath: configStore.config.steamcmdPath)
@@ -480,8 +481,11 @@ struct ContentView: View {
             log("No official download page is configured for \(game.name).")
             return
         }
-        NSWorkspace.shared.open(url)
-        log("Opened official download page: \(game.officialDownloadURL)")
+        if NSWorkspace.shared.open(url) {
+            log("Optional internet action: opened official download page: \(game.officialDownloadURL)")
+        } else {
+            log("Could not open the official download page. The app remains usable offline for normal LAN-helper features.")
+        }
     }
 
     private func exportTutorial(for game: Game) {

@@ -26,6 +26,10 @@ The app itself works offline for:
 - game path selection
 - exporting guides
 
+## Offline Mode
+
+After the app is downloaded and installed, normal LAN-helper features work offline. Optional server downloads and online-only games require internet and are not handled by this app.
+
 If macOS blocks the app because it is unsigned or newly downloaded, use macOS System Settings privacy/security controls to allow the app. Do not download repacked copies from unofficial sites.
 
 ## Release Files
