@@ -45,6 +45,35 @@ SAFETY_WARNING = (
     "This app does not emulate servers or bypass online services. "
     "Online-only and Windows-only games are intentionally excluded."
 )
+PRIVACY_TEXT = """
+Privacy Policy
+
+Offline LAN Games Helper is designed to work locally on your device.
+
+Data Collection
+- This app does not collect, sell, share, or upload personal data.
+
+Network Information
+- The app may read your hostname, local/private IPv4 addresses, and network interface names.
+- This information is shown only inside the app so you can set up LAN/offline multiplayer.
+
+Local Configuration
+- The app may save selected game paths, custom games, selected server paths, and exported guides.
+- These files stay on your device.
+
+Internet Access
+- Normal LAN helper features should not require internet access.
+- If Server Tools opens official download pages or uses official tools such as SteamCMD, those tools may connect to official services.
+
+No DRM or Account Bypass
+- This app does not bypass DRM, launchers, authentication, game ownership checks, anti-cheat, or online services.
+
+Third-Party Services
+- This project is not affiliated with Steam, Valve, Paradox, Epic Games, Rockstar, Riot Games, Mojang, Microsoft, Apple, or any game publisher.
+
+Contact
+- For privacy questions, contact The0Cosmo via GitHub.
+""".strip()
 
 
 def app_directory() -> Path:
@@ -327,6 +356,7 @@ class OfflineLanGamesHelperMac:
         self.path_text = self.add_text_tab("Game Path")
         self.server_text = self.add_server_tools_tab()
         self.troubleshooting_text = self.add_text_tab("Troubleshooting")
+        self.privacy_text = self.add_text_tab("Privacy")
         self.server_buttons: dict[str, ttk.Button] = {}
         self.add_server_button("Open Server Folder", self.open_server_folder, 0)
         self.add_server_button("Select Server File", self.select_server_file, 1)
@@ -499,6 +529,7 @@ class OfflineLanGamesHelperMac:
         self.update_path_tab()
         self.update_server_tab()
         self.update_troubleshooting_tab()
+        self.update_privacy_tab()
 
     def update_tutorial_tab(self) -> None:
         game = self.current_game
@@ -627,6 +658,9 @@ class OfflineLanGamesHelperMac:
             "- Verify matching game version, mods, DLC, and required content.",
             "- Do not use this app for online-only or matchmaking-only games.",
         ]))
+
+    def update_privacy_tab(self) -> None:
+        self.set_text(self.privacy_text, PRIVACY_TEXT)
 
     def update_server_button_states(self) -> None:
         game = self.current_game

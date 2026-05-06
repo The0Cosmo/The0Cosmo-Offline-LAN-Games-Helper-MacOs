@@ -2,32 +2,75 @@
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "$0")" && pwd)"
-cd "$ROOT"
+SWIFT_PROJECT="$ROOT/OfflineLANHelperMac"
+DIST="$ROOT/dist"
+APP_NAME="Offline LAN Games Helper"
+APP_BUNDLE="$DIST/$APP_NAME.app"
+DMG_PATH="$DIST/$APP_NAME.dmg"
+EXECUTABLE_NAME="OfflineLANHelperMac"
 
-PYTHON_BIN="${PYTHON_BIN:-python3}"
-VENV="$ROOT/.venv"
-
-if [ ! -x "$VENV/bin/python" ]; then
-  "$PYTHON_BIN" -m venv "$VENV"
+if ! command -v swift >/dev/null 2>&1; then
+  echo "Swift toolchain not found."
+  echo "This packaging script is for the maintainer/developer on macOS."
+  echo "End users do not need Swift, Xcode, Python, Homebrew, pip, or PyInstaller."
+  echo "Build the release on macOS with Xcode or the Swift toolchain, then distribute the .app or .dmg from dist."
+  exit 1
 fi
 
-"$VENV/bin/python" -m pip install --upgrade pip
-"$VENV/bin/python" -m pip install pyinstaller pillow
+if [ ! -f "$SWIFT_PROJECT/Package.swift" ]; then
+  echo "Missing Swift package: $SWIFT_PROJECT/Package.swift"
+  exit 1
+fi
 
-"$VENV/bin/python" "$ROOT/make_icon_macos.py"
+cd "$SWIFT_PROJECT"
+cp "$ROOT/games.json" "$SWIFT_PROJECT/Sources/OfflineLANHelperMac/Resources/games.json"
+swift build -c release
 
-"$VENV/bin/python" -m PyInstaller \
-  --windowed \
-  --name "Offline LAN Games Helper macOS" \
-  --icon "assets/offline_lan_helper.icns" \
-  --add-data "games.json:." \
-  "$ROOT/lan_games_helper_macos.py"
+rm -rf "$APP_BUNDLE" "$DMG_PATH"
+mkdir -p "$APP_BUNDLE/Contents/MacOS"
+mkdir -p "$APP_BUNDLE/Contents/Resources"
+mkdir -p "$DIST"
 
-mkdir -p "$ROOT/dist"
-cp "$ROOT/games.json" "$ROOT/dist/games.json"
-cp "$ROOT/user_config.json" "$ROOT/dist/user_config.json"
+cp "$SWIFT_PROJECT/.build/release/$EXECUTABLE_NAME" "$APP_BUNDLE/Contents/MacOS/$EXECUTABLE_NAME"
+chmod +x "$APP_BUNDLE/Contents/MacOS/$EXECUTABLE_NAME"
+cp "$SWIFT_PROJECT/Packaging/Info.plist" "$APP_BUNDLE/Contents/Info.plist"
+
+cp "$ROOT/assets/offline_lan_helper.icns" "$APP_BUNDLE/Contents/Resources/offline_lan_helper.icns"
+cp "$ROOT/games.json" "$APP_BUNDLE/Contents/Resources/games.json"
+cp "$ROOT/README.md" "$APP_BUNDLE/Contents/Resources/README.md"
+cp "$ROOT/PRIVACY.md" "$APP_BUNDLE/Contents/Resources/PRIVACY.md"
+cp "$ROOT/LICENSE" "$APP_BUNDLE/Contents/Resources/LICENSE"
+
+if [ -d "$SWIFT_PROJECT/.build/release/${EXECUTABLE_NAME}_${EXECUTABLE_NAME}.resources" ]; then
+  cp -R "$SWIFT_PROJECT/.build/release/${EXECUTABLE_NAME}_${EXECUTABLE_NAME}.resources" "$APP_BUNDLE/Contents/Resources/"
+fi
+if [ -d "$SWIFT_PROJECT/.build/release/${EXECUTABLE_NAME}_${EXECUTABLE_NAME}.bundle" ]; then
+  cp -R "$SWIFT_PROJECT/.build/release/${EXECUTABLE_NAME}_${EXECUTABLE_NAME}.bundle" "$APP_BUNDLE/Contents/Resources/"
+fi
+
+if command -v codesign >/dev/null 2>&1; then
+  codesign --force --deep --sign - "$APP_BUNDLE"
+fi
+
+if command -v hdiutil >/dev/null 2>&1; then
+  STAGING="$(mktemp -d)"
+  cp -R "$APP_BUNDLE" "$STAGING/"
+  hdiutil create \
+    -volname "$APP_NAME" \
+    -srcfolder "$STAGING" \
+    -ov \
+    -format UDZO \
+    "$DMG_PATH"
+  rm -rf "$STAGING"
+fi
 
 echo
-echo "Build complete."
-echo "App bundle: $ROOT/dist/Offline LAN Games Helper macOS.app"
-echo "Editable data files copied beside the app: dist/games.json, dist/user_config.json"
+echo "Native macOS app build complete."
+echo "App bundle: $APP_BUNDLE"
+if [ -f "$DMG_PATH" ]; then
+  echo "DMG: $DMG_PATH"
+else
+  echo "DMG was not created because hdiutil was not available."
+fi
+echo
+echo "End users only need the .app or .dmg. They do not need Python, Homebrew, pip, PyInstaller, Xcode, or terminal commands."

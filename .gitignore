@@ -3,7 +3,10 @@ __pycache__/
 .venv/
 venv/
 build/
+.build/
+DerivedData/
 dist/
+*.dmg
 *.spec
 user_config.json
 exported_guides/

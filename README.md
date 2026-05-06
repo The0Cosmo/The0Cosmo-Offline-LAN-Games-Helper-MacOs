@@ -1,44 +1,146 @@
 # Offline LAN Games Helper - macOS
 
-Offline LAN Games Helper is a safe macOS GUI utility for LAN/offline multiplayer games that you legally own. It helps with host IP discovery, LAN tutorials, normal game launching, manual firewall guidance, and official dedicated server tools where a real supported server option exists.
+Offline LAN Games Helper is a native macOS app for LAN/offline multiplayer games that you legally own. It helps with LAN IP discovery, macOS firewall guidance, normal game launching, game-specific tutorials, exported guides, and official dedicated server tools where a real supported server option exists.
 
-This app is not a server emulator. It does not bypass DRM, Steam, Epic, Paradox Launcher, authentication, ownership checks, anti-cheat, online services, or licenses. It does not create cracks, loaders, Steam emulators, patched executables, hooks, injectors, modified game files, or offline-service emulators.
+This project is not affiliated with Steam, Valve, Paradox, Epic Games, Rockstar, Riot Games, Mojang, Microsoft, Apple, or any game publisher.
+
+## For Normal Users
+
+Download the macOS release as a `.dmg` or `.app`, then open the app normally.
+
+Normal users do not need:
+
+- Python
+- Homebrew
+- pip
+- PyInstaller
+- Xcode
+- Swift
+- terminal commands
+- developer tools
+
+The app itself works offline for:
+
+- LAN IP detection
+- tutorials
+- game path selection
+- exporting guides
+
+If macOS blocks the app because it is unsigned or newly downloaded, use macOS System Settings privacy/security controls to allow the app. Do not download repacked copies from unofficial sites.
+
+## Release Files
+
+The maintainer build creates:
+
+```text
+dist/Offline LAN Games Helper.app
+dist/Offline LAN Games Helper.dmg
+```
+
+Distribute the `.dmg` from GitHub Releases. End users should only need to download the `.dmg`, open it, and launch the app.
+
+## Supported Platform
+
+- macOS 13 or newer
+- Native Swift/SwiftUI app
+- No Windows firewall, Windows registry, or `.exe` build logic
+- No Python runtime required for the final app
 
 ## What The App Does
 
 - Shows the Mac hostname and private LAN IPv4 addresses.
+- Shows network interface names when available.
 - Warns when multiple LAN/VPN adapters may confuse IP selection.
-- Lets you copy the selected host IP for friends.
-- Detects installed games from common macOS app paths and Steam libraries.
-- Saves manually selected app or executable paths in `user_config.json`.
+- Copies the selected host IP.
+- Allows manual selection of `.app` bundles or executable files.
+- Saves local settings in the user's Application Support folder.
 - Launches selected games normally.
-- Opens macOS Firewall/System Settings help without silently changing settings.
-- Shows English LAN tutorials, troubleshooting, ports, and compatibility notes.
-- Exports a Markdown guide for the selected game.
+- Opens macOS System Settings for firewall/permissions help.
+- Shows English tutorials, ports, notes, troubleshooting, and privacy text.
+- Exports Markdown LAN/server guides.
 - Helps with official dedicated server tools only when supported.
 
 ## What The App Cannot Do
 
 - It cannot turn online-only games into LAN games.
 - It cannot emulate matchmaking, account services, Steam, Epic, Paradox, or other online services.
-- It cannot bypass ownership checks or anti-cheat.
+- It cannot bypass DRM, launchers, authentication, game ownership checks, anti-cheat, or licenses.
+- It cannot create cracks, loaders, Steam emulators, patched executables, hooks, injectors, modified game files, or offline-service emulators.
 - It cannot modify original game files.
+- It cannot silently change macOS firewall rules.
 - It cannot create a dedicated server for games that only support in-game hosting.
 
-## Run From Source
+## macOS Firewall / Permissions
 
-Open Terminal in this folder on macOS:
+The app includes a `Firewall / Permissions` tab with this policy:
 
-```bash
-cd "/path/to/MacOs OfflineLan Helper"
-python3 lan_games_helper_macos.py
+```text
+On macOS, you may need to allow incoming connections for the game or server app in System Settings. This helper does not silently change firewall settings.
 ```
 
-If you prepared the project on Windows, copy the folder to your Mac first. The macOS app should be run and built on macOS.
+Use `Open macOS System Settings` to open System Settings safely. If the exact firewall pane is not available on your macOS version, open System Settings and search for `Firewall`.
 
-## Build The macOS App
+## Server Tools
 
-Run on macOS:
+Normal LAN helper features work offline and do not require downloads.
+
+Server Tools are optional and can only:
+
+- open official download pages;
+- use official SteamCMD app IDs if verified and listed;
+- launch official dedicated server executables;
+- let the user select local official server files;
+- export instructions.
+
+Server Tools cannot create fake servers, emulate online services, bypass authentication, patch game files, or download from unofficial sources.
+
+If Server Tools require SteamCMD or official dedicated server files, the app marks those as optional external tools. Those tools may connect to official services.
+
+If server support is unavailable, the app shows:
+
+```text
+No supported dedicated server is available for this game. Host from inside the game if supported.
+```
+
+If a game has no official dedicated server, use in-game hosting.
+
+## Game Filtering
+
+The macOS catalog keeps only games that are macOS-compatible and have real offline LAN, local hosting, or official dedicated server possibilities.
+
+Included macOS catalog:
+
+- Terraria
+- Stardew Valley
+- Valheim
+- Minecraft Java Edition
+- Factorio
+- Project Zomboid
+- OpenTTD
+- Xonotic
+- Teeworlds
+- Hedgewars
+- 0 A.D.
+
+Removed from macOS: VALORANT, osu!, Grand Theft Auto V, Cyberpunk 2077, Paradox Launcher v2, BombSquad, Crab Game, Muck, Windows-only games, online-only games, matchmaking-only games, and uncertain games.
+
+## Privacy
+
+Offline LAN Games Helper works locally on your device. It does not collect, sell, share, or upload personal data. It may read local network information such as your LAN IP address and adapter names only to show them inside the app.
+
+See [PRIVACY.md](PRIVACY.md) for details.
+
+## License
+
+Copyright (c) 2026 The0Cosmo. All rights reserved.
+
+This software is for personal, non-commercial use only. See [LICENSE](LICENSE) for the full license terms.
+
+## Maintainer Build Instructions
+
+These steps are for the developer or release maintainer only. End users do not need them.
+
+Build on macOS with Xcode command line tools or Xcode installed:
 
 ```bash
 cd "/path/to/MacOs OfflineLan Helper"
@@ -46,130 +148,15 @@ chmod +x build_macos.sh
 ./build_macos.sh
 ```
 
-The build script:
+The script:
 
-- creates or uses `.venv`;
-- installs `pyinstaller` and `pillow`;
-- generates `assets/offline_lan_helper.icns` if needed;
-- builds a windowed app bundle;
-- copies `games.json` and `user_config.json` beside the app bundle.
+- builds the SwiftUI app with `swift build -c release`;
+- creates `dist/Offline LAN Games Helper.app`;
+- copies `games.json`, `README.md`, `PRIVACY.md`, `LICENSE`, and the icon into the app bundle;
+- applies ad-hoc local code signing when `codesign` is available;
+- creates `dist/Offline LAN Games Helper.dmg` when `hdiutil` is available.
 
-The app bundle is created under:
-
-```text
-dist/Offline LAN Games Helper macOS.app
-```
-
-## macOS Firewall / Permissions
-
-This app does not silently modify macOS firewall settings.
-
-If a game cannot accept LAN connections:
-
-1. Open `System Settings`.
-2. Go to `Network` and then `Firewall`, or search for `Firewall`.
-3. Allow incoming connections for the game or official server executable.
-4. Make sure all players use the same LAN or VPN LAN.
-
-The `Open Firewall Help` button opens System Settings safely and shows the same instructions.
-
-## Selecting macOS Apps
-
-Use `Manual Select Game` when automatic detection fails.
-
-You can select:
-
-- a `.app` bundle from `/Applications`, `~/Applications`, or a Steam library;
-- an executable file inside an app bundle;
-- a user-provided official server file.
-
-Manual paths are saved in `user_config.json`.
-
-## Server Tools
-
-The `Server Tools` tab is intentionally conservative.
-
-Supported server support types:
-
-- `none`: no supported dedicated server; use in-game hosting if available.
-- `in_game_host`: host from inside the game.
-- `official_dedicated`: launch or select an official dedicated server executable already installed.
-- `steamcmd`: install with SteamCMD only if `games.json` contains a verified official app ID and the user selects SteamCMD.
-- `manual_files`: use user-provided local official server files.
-- `official_download_page`: open the official download page in a browser.
-
-SteamCMD is used normally. The app does not bundle, emulate, patch, or bypass SteamCMD. If a server requires a purchased game or a logged-in account, follow the official game/server documentation.
-
-Only official SteamCMD app IDs should be added to `games.json`. If an app ID is not verified, leave it blank and use manual files or an official download page instead.
-
-## Add A Custom Game
-
-Use `Add Custom Game` to add a macOS-compatible LAN/offline game that is not in `games.json`.
-
-You can enter:
-
-- game name;
-- app or executable path;
-- optional ports;
-- host tutorial;
-- client tutorial;
-- server support type;
-- optional server file path;
-- notes.
-
-Custom games are saved in `user_config.json`. The app never edits the built-in `games.json` when adding a custom game.
-
-## Export Tutorials
-
-Use `Export Tutorial` to create a Markdown guide in:
-
-```text
-exported_guides
-```
-
-The guide includes the selected game, host IP, LAN tutorial, server tools notes, ports, and troubleshooting.
-
-## Editing games.json
-
-Each built-in game entry uses this schema:
-
-```json
-{
-  "name": "Game Name",
-  "platforms": ["macOS"],
-  "lan_status": "Supported / Local server / In-game host",
-  "exe_names": [],
-  "common_paths_windows": [],
-  "common_paths_macos": [],
-  "ports": [],
-  "host_tutorial": [],
-  "client_tutorial": [],
-  "offline_notes": [],
-  "troubleshooting": [],
-  "launch_notes": [],
-  "server_support": "in_game_host",
-  "server_notes": [],
-  "server_files": [],
-  "steamcmd_app_id": "",
-  "server_executable_names": [],
-  "server_common_paths_windows": [],
-  "server_common_paths_macos": [],
-  "server_install_steps": [],
-  "server_launch_command_windows": "",
-  "server_launch_command_macos": "",
-  "server_config_files": [],
-  "server_ports": [],
-  "official_download_url": ""
-}
-```
-
-Only add games that are macOS-compatible and have real offline LAN, local hosting, or official dedicated server support. If support is uncertain, do not add the game.
-
-## Why Some Games Are Excluded
-
-Windows-only games, launcher-only entries, online-only games, and matchmaking-only games are intentionally excluded from the macOS catalog. This helper cannot replace online services or make unsupported games work offline.
-
-Examples intentionally excluded include VALORANT, osu!, Grand Theft Auto V, Cyberpunk 2077, Paradox Launcher v2, BombSquad, Crab Game, Muck, Human: Fall Flat, The Escapists 2, and Windows-only games without reliable macOS LAN support.
+This repository also keeps `lan_games_helper_macos.py` as a developer fallback/reference implementation. It is not required for the final macOS app and should not be required for end users.
 
 ## Troubleshooting
 
