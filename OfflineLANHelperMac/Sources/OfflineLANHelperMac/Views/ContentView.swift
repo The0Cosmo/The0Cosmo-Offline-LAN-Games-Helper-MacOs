@@ -3,9 +3,121 @@ import AppKit
 import Network
 import GameController
 
-private let paypalDonationURL = "https://paypal.me/REPLACE_WITH_MY_PAYPALME"
+private let paypalDonationURL = "https://paypal.me/The0Cosmo"
 private let githubSponsorsURL = "https://github.com/sponsors/The0Cosmo"
+private let macRepositoryURL = "https://github.com/The0Cosmo/The0Cosmo-Offline-LAN-Games-Helper-MacOs"
+private let appVersion = "1.2.0"
 private let donationOfflineMessage = "Donation links require an internet connection. You can copy the link and open it later."
+private let localizedText: [String: [String: String]] = [
+    "en": [
+        "app_title": "Offline LAN Games Helper - macOS",
+        "safety_warning": "This app does not emulate servers or bypass online services. Online-only and Windows-only games are intentionally excluded.",
+        "offline_local": "LAN IP detection, tutorials, game path selection, and guide export work locally without Python or developer tools.",
+        "offline_mode": "Offline Mode: hide or block optional internet/download actions",
+        "search": "Search",
+        "search_games": "Search games",
+        "add_custom_game": "Add Custom Game",
+        "refresh_ip": "Refresh IP",
+        "copy_ip": "Copy Host IP",
+        "detect_path": "Detect Game Path",
+        "manual_select_game": "Manual Select Game",
+        "launch_game": "Launch Game",
+        "firewall_help": "Open macOS System Settings",
+        "export_tutorial": "Export Tutorial",
+        "log_status": "Log / Status",
+        "clear_log": "Clear Log",
+        "tutorial": "Tutorial",
+        "network": "Network / IP",
+        "firewall_permissions": "Firewall / Permissions",
+        "game_path": "Game Path",
+        "server_tools": "Server Tools",
+        "lan_test": "LAN Test",
+        "invite": "Invite",
+        "backups": "Backups",
+        "mods": "Mods",
+        "controller_helper": "Controller Helper",
+        "troubleshooting": "Troubleshooting",
+        "settings": "Settings",
+        "support": "Support",
+        "privacy": "Privacy",
+        "language": "Language",
+        "theme": "Theme",
+        "light": "Light",
+        "dark": "Dark",
+        "system": "System default",
+        "default_behavior": "Default Behavior",
+        "show_safety_warnings": "Show safety warnings",
+        "remember_last_game": "Remember last selected game",
+        "paths": "Paths",
+        "default_export_folder": "Default export folder",
+        "default_backup_folder": "Default backup folder",
+        "prism_launcher_path": "Prism Launcher path",
+        "privacy_local": "This app works locally and does not collect or upload personal data.",
+        "support_project": "Support the Project",
+        "donate": "Donate with PayPal",
+        "sponsor": "Sponsor on GitHub",
+        "copy_donation": "Copy Donation Link",
+        "open_privacy": "Open Privacy Policy",
+        "open_repo": "Open GitHub Repository",
+        "about": "About",
+        "author": "Author: The0Cosmo",
+        "license": "Personal, non-commercial use only. See LICENSE for full terms."
+    ],
+    "it": [
+        "app_title": "Offline LAN Games Helper - macOS",
+        "safety_warning": "Questa app non emula server e non aggira servizi online. I giochi solo online o solo Windows sono esclusi.",
+        "offline_local": "IP LAN, tutorial, selezione percorso gioco ed export guide funzionano localmente senza Python o strumenti sviluppatore.",
+        "offline_mode": "Modalita offline: nasconde o blocca azioni internet/download opzionali",
+        "search": "Cerca",
+        "search_games": "Cerca giochi",
+        "add_custom_game": "Aggiungi gioco personalizzato",
+        "refresh_ip": "Aggiorna IP",
+        "copy_ip": "Copia IP host",
+        "detect_path": "Rileva percorso gioco",
+        "manual_select_game": "Seleziona gioco manualmente",
+        "launch_game": "Avvia gioco",
+        "firewall_help": "Apri Impostazioni di macOS",
+        "export_tutorial": "Esporta tutorial",
+        "log_status": "Log / Stato",
+        "clear_log": "Pulisci log",
+        "tutorial": "Tutorial",
+        "network": "Rete / IP",
+        "firewall_permissions": "Firewall / Permessi",
+        "game_path": "Percorso gioco",
+        "server_tools": "Strumenti server",
+        "lan_test": "Test LAN",
+        "invite": "Invito",
+        "backups": "Backup",
+        "mods": "Mod",
+        "controller_helper": "Aiuto controller",
+        "troubleshooting": "Risoluzione problemi",
+        "settings": "Impostazioni",
+        "support": "Supporto",
+        "privacy": "Privacy",
+        "language": "Lingua",
+        "theme": "Tema",
+        "light": "Chiaro",
+        "dark": "Scuro",
+        "system": "Predefinito di sistema",
+        "default_behavior": "Comportamento predefinito",
+        "show_safety_warnings": "Mostra avvisi di sicurezza",
+        "remember_last_game": "Ricorda ultimo gioco selezionato",
+        "paths": "Percorsi",
+        "default_export_folder": "Cartella export predefinita",
+        "default_backup_folder": "Cartella backup predefinita",
+        "prism_launcher_path": "Percorso Prism Launcher",
+        "privacy_local": "Questa app funziona localmente e non raccoglie o carica dati personali.",
+        "support_project": "Supporta il progetto",
+        "donate": "Dona con PayPal",
+        "sponsor": "Sponsorizza su GitHub",
+        "copy_donation": "Copia link donazione",
+        "open_privacy": "Apri informativa privacy",
+        "open_repo": "Apri repository GitHub",
+        "about": "Informazioni",
+        "author": "Autore: The0Cosmo",
+        "license": "Solo uso personale e non commerciale. Vedi LICENSE per i termini completi."
+    ]
+]
 private let macControllerChecklist = """
 macOS Controller Checklist:
 1. Connect the controller with USB or Bluetooth.
@@ -49,6 +161,10 @@ Local Configuration
 - The app may save selected game paths, custom games, selected server paths, controller profile notes, and exported guides.
 - These files stay on your device.
 
+Settings and Language
+- The app may save local preferences such as selected language, theme, selected paths, and offline mode.
+- These settings stay on your device and are not uploaded.
+
 Internet Access
 - Normal LAN helper features should not require internet access.
 - If Server Tools opens official download pages or uses official tools such as SteamCMD, those tools may connect to official services.
@@ -79,6 +195,16 @@ Contact
 struct ContentView: View {
     @StateObject private var network = NetworkService()
     @StateObject private var configStore = ConfigStore()
+
+    @AppStorage("language") private var language = "en"
+    @AppStorage("theme") private var themePreference = "system"
+    @AppStorage("defaultOfflineMode") private var defaultOfflineMode = false
+    @AppStorage("showSafetyWarnings") private var showSafetyWarnings = true
+    @AppStorage("rememberLastSelectedGame") private var rememberLastSelectedGame = true
+    @AppStorage("lastSelectedGameID") private var lastSelectedGameID = ""
+    @AppStorage("prismLauncherPath") private var prismLauncherPath = ""
+    @AppStorage("defaultExportFolder") private var defaultExportFolder = ""
+    @AppStorage("defaultBackupFolder") private var defaultBackupFolder = ""
 
     @State private var builtInGames = GameCatalog.loadBuiltInGames()
     @State private var selectedGameID: String?
@@ -119,6 +245,21 @@ struct ContentView: View {
         return filteredGames.first
     }
 
+    private var preferredScheme: ColorScheme? {
+        switch themePreference {
+        case "light":
+            return .light
+        case "dark":
+            return .dark
+        default:
+            return nil
+        }
+    }
+
+    private func t(_ key: String) -> String {
+        localizedText[language]?[key] ?? localizedText["en"]?[key] ?? key
+    }
+
     var body: some View {
         VStack(spacing: 0) {
             header
@@ -134,7 +275,12 @@ struct ContentView: View {
             logPanel
         }
         .onAppear {
-            selectedGameID = selectedGame?.id
+            offlineMode = defaultOfflineMode
+            if rememberLastSelectedGame, allGames.contains(where: { $0.id == lastSelectedGameID }) {
+                selectedGameID = lastSelectedGameID
+            } else {
+                selectedGameID = selectedGame?.id
+            }
             selectedIP = network.primaryIP
             lanTestIP = network.primaryIP
             if let game = selectedGame {
@@ -153,6 +299,9 @@ struct ContentView: View {
         }
         .onChange(of: selectedGameID) { _ in
             if let game = selectedGame {
+                if rememberLastSelectedGame {
+                    lastSelectedGameID = game.id
+                }
                 lanTestPort = defaultTCPPort(for: game)
                 saveFolderPath = configStore.saveFolder(for: game) ?? ""
                 modFolderPath = configStore.modFolder(for: game) ?? ""
@@ -167,18 +316,26 @@ struct ContentView: View {
                 log("Custom game saved: \(game.name)")
             }
         }
+        .preferredColorScheme(preferredScheme)
     }
 
     private var header: some View {
         HStack(alignment: .top) {
+            KiwiLogoView()
+                .frame(width: 58, height: 58)
+                .accessibilityLabel("Kiwi LAN logo")
             VStack(alignment: .leading, spacing: 4) {
-                Text("Offline LAN Games Helper - macOS")
+                Text(t("app_title"))
                     .font(.title2.bold())
-                Text("This app does not emulate servers or bypass online services. Online-only and Windows-only games are intentionally excluded.")
-                    .foregroundColor(.orange)
-                Text("LAN IP detection, tutorials, game path selection, and guide export work locally without Python or developer tools.")
+                Text("v\(appVersion)  |  The0Cosmo")
                     .foregroundStyle(.secondary)
-                Toggle("Offline Mode: hide or block optional internet/download actions", isOn: $offlineMode)
+                if showSafetyWarnings {
+                    Text(t("safety_warning"))
+                        .foregroundColor(.orange)
+                }
+                Text(t("offline_local"))
+                    .foregroundStyle(.secondary)
+                Toggle(t("offline_mode"), isOn: $offlineMode)
                     .toggleStyle(.checkbox)
                     .onChange(of: offlineMode) { value in
                         log("Offline Mode \(value ? "enabled" : "disabled"). Optional internet/download actions are \(value ? "blocked" : "available") when explicitly clicked.")
@@ -199,10 +356,10 @@ struct ContentView: View {
 
     private var sidebar: some View {
         VStack(alignment: .leading, spacing: 8) {
-            Text("Search")
+            Text(t("search"))
                 .font(.caption)
                 .foregroundStyle(.secondary)
-            TextField("Search games", text: $searchText)
+            TextField(t("search_games"), text: $searchText)
                 .textFieldStyle(.roundedBorder)
             List(selection: $selectedGameID) {
                 ForEach(filteredGames) { game in
@@ -210,7 +367,7 @@ struct ContentView: View {
                         .tag(Optional(game.id))
                 }
             }
-            Button("Add Custom Game") {
+            Button(t("add_custom_game")) {
                 showingCustomGameSheet = true
                 log("Clicked: Add Custom Game")
             }
@@ -225,9 +382,9 @@ struct ContentView: View {
             if let game = selectedGame {
                 TabView {
                     TextDocumentView(text: tutorialText(for: game))
-                        .tabItem { Text("Tutorial") }
+                        .tabItem { Text(t("tutorial")) }
                     NetworkTab(network: network, selectedIP: $selectedIP, copy: copySelectedIP)
-                        .tabItem { Text("Network / IP") }
+                        .tabItem { Text(t("network")) }
                     LanTestView(
                         game: game,
                         targetIP: $lanTestIP,
@@ -244,11 +401,11 @@ struct ContentView: View {
                         onPing: { pingTest() },
                         onTCPTest: { tcpPortTest() }
                     )
-                    .tabItem { Text("LAN Test") }
+                    .tabItem { Text(t("lan_test")) }
                     TextDocumentView(text: firewallText)
-                        .tabItem { Text("Firewall / Permissions") }
+                        .tabItem { Text(t("firewall_permissions")) }
                     TextDocumentView(text: gamePathText(for: game))
-                        .tabItem { Text("Game Path") }
+                        .tabItem { Text(t("game_path")) }
                     ServerToolsView(
                         game: game,
                         selectedServerPath: configStore.serverPath(for: game),
@@ -266,13 +423,13 @@ struct ContentView: View {
                         onOpenOfficialDownload: { openOfficialDownload(for: game) },
                         onExportServerGuide: { exportServerGuide(for: game) }
                     )
-                    .tabItem { Text("Server Tools") }
+                    .tabItem { Text(t("server_tools")) }
                     InviteView(inviteText: inviteText(for: game), onCopy: { copyInvite(for: game) }, onExport: { exportInvite(for: game) })
-                        .tabItem { Text("Invite") }
+                        .tabItem { Text(t("invite")) }
                     BackupView(saveFolderPath: $saveFolderPath, onSelectFolder: { selectSaveFolder(for: game) }, onCreateBackup: { createSaveBackup(for: game) }, onRestoreBackup: { restoreSaveBackup(for: game) })
-                        .tabItem { Text("Backups") }
+                        .tabItem { Text(t("backups")) }
                     ModsView(modFolderPath: $modFolderPath, onSelectFolder: { selectModFolder(for: game) }, onExportModList: { exportModList(for: game) })
-                        .tabItem { Text("Mods") }
+                        .tabItem { Text(t("mods")) }
                     ControllerHelperView(
                         controllers: controllerInfos,
                         profiles: configStore.config.controllerProfiles,
@@ -291,18 +448,52 @@ struct ContentView: View {
                         onCopySteamChecklist: { copyText(steamInputChecklist, label: "Steam Input checklist") },
                         onSaveProfile: saveControllerProfile
                     )
-                    .tabItem { Text("Controller Helper") }
+                    .tabItem { Text(t("controller_helper")) }
                     TextDocumentView(text: troubleshootingText(for: game))
-                        .tabItem { Text("Troubleshooting") }
+                        .tabItem { Text(t("troubleshooting")) }
+                    SettingsView(
+                        language: $language,
+                        themePreference: $themePreference,
+                        defaultOfflineMode: $defaultOfflineMode,
+                        showSafetyWarnings: $showSafetyWarnings,
+                        rememberLastSelectedGame: $rememberLastSelectedGame,
+                        prismLauncherPath: $prismLauncherPath,
+                        defaultExportFolder: $defaultExportFolder,
+                        defaultBackupFolder: $defaultBackupFolder,
+                        copyDonationLink: copyDonationLink,
+                        openPayPalDonation: openPayPalDonation,
+                        openGitHubSponsors: openGitHubSponsors,
+                        openPrivacyPolicy: openPrivacyPolicy,
+                        openRepository: openMacRepository,
+                        choosePrismPath: {
+                            if let path = choosePath(title: "Select Prism Launcher", files: true, directories: true) {
+                                prismLauncherPath = path
+                                log("Saved Prism Launcher path: \(path)")
+                            }
+                        },
+                        chooseExportFolder: {
+                            if let path = choosePath(title: "Select default export folder", files: false, directories: true) {
+                                defaultExportFolder = path
+                                log("Saved default export folder: \(path)")
+                            }
+                        },
+                        chooseBackupFolder: {
+                            if let path = choosePath(title: "Select default backup folder", files: false, directories: true) {
+                                defaultBackupFolder = path
+                                log("Saved default backup folder: \(path)")
+                            }
+                        }
+                    )
+                    .tabItem { Text(t("settings")) }
                     SupportView(
                         offlineMode: offlineMode,
                         onPayPal: openPayPalDonation,
                         onSponsors: openGitHubSponsors,
                         onCopy: copyDonationLink
                     )
-                    .tabItem { Text("Support") }
+                    .tabItem { Text(t("support")) }
                     TextDocumentView(text: privacyText)
-                        .tabItem { Text("Privacy") }
+                        .tabItem { Text(t("privacy")) }
                 }
                 .padding(8)
             } else {
@@ -314,26 +505,26 @@ struct ContentView: View {
 
     private var actions: some View {
         HStack {
-            Button("Refresh IP") {
+            Button(t("refresh_ip")) {
                 network.refresh()
                 selectedIP = network.primaryIP
                 log("Network/IP refreshed.")
             }
-            Button("Copy Host IP", action: copySelectedIP)
-            Button("Detect Game Path") {
+            Button(t("copy_ip"), action: copySelectedIP)
+            Button(t("detect_path")) {
                 guard let game = selectedGame else { return }
                 detectGamePath(for: game)
             }
-            Button("Manual Select Game") {
+            Button(t("manual_select_game")) {
                 guard let game = selectedGame else { return }
                 selectGamePath(for: game)
             }
-            Button("Launch Game") {
+            Button(t("launch_game")) {
                 guard let game = selectedGame else { return }
                 launchGame(game)
             }
-            Button("Open macOS System Settings", action: openSystemSettings)
-            Button("Export Tutorial") {
+            Button(t("firewall_help"), action: openSystemSettings)
+            Button(t("export_tutorial")) {
                 guard let game = selectedGame else { return }
                 exportTutorial(for: game)
             }
@@ -344,10 +535,10 @@ struct ContentView: View {
     private var logPanel: some View {
         VStack(alignment: .leading, spacing: 6) {
             HStack {
-                Text("Log / Status")
+                Text(t("log_status"))
                     .font(.headline)
                 Spacer()
-                Button("Clear Log") {
+                Button(t("clear_log")) {
                     logLines.removeAll()
                 }
             }
@@ -1069,6 +1260,43 @@ struct ContentView: View {
         log("Copied optional donation link.")
     }
 
+    private func openMacRepository() {
+        if let url = URL(string: macRepositoryURL), NSWorkspace.shared.open(url) {
+            log("Opened macOS GitHub repository.")
+        } else {
+            log("Could not open GitHub repository URL.")
+        }
+    }
+
+    private func openPrivacyPolicy() {
+        do {
+            let supportRoot = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask).first
+                ?? URL(fileURLWithPath: FileManager.default.currentDirectoryPath)
+            let folder = supportRoot.appendingPathComponent("Offline LAN Games Helper", isDirectory: true)
+            try FileManager.default.createDirectory(at: folder, withIntermediateDirectories: true)
+            let file = folder.appendingPathComponent("PRIVACY.md")
+            try privacyText.write(to: file, atomically: true, encoding: .utf8)
+            NSWorkspace.shared.open(file)
+            log("Opened local privacy policy file.")
+        } catch {
+            log("Could not open privacy policy: \(error.localizedDescription)")
+        }
+    }
+
+    private func choosePath(title: String, files: Bool, directories: Bool) -> String? {
+        let panel = NSOpenPanel()
+        panel.title = title
+        panel.canChooseFiles = files
+        panel.canChooseDirectories = directories
+        panel.allowsMultipleSelection = false
+        panel.treatsFilePackagesAsDirectories = false
+        guard panel.runModal() == .OK, let url = panel.url else {
+            log("Path selection canceled.")
+            return nil
+        }
+        return url.path
+    }
+
     private func exportTutorial(for game: Game) {
         writeMarkdown(defaultName: "\(safeFilename(game.name))_LAN_Tutorial.md", text: exportText(for: game))
     }
@@ -1081,6 +1309,9 @@ struct ContentView: View {
         let panel = NSSavePanel()
         panel.nameFieldStringValue = defaultName
         panel.allowedFileTypes = ["md"]
+        if !defaultExportFolder.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+            panel.directoryURL = URL(fileURLWithPath: defaultExportFolder)
+        }
         guard panel.runModal() == .OK, let url = panel.url else {
             log("Export canceled.")
             return
@@ -1157,11 +1388,17 @@ struct ContentView: View {
     }
 
     private func backupsFolder(for game: Game) -> URL {
-        let supportRoot = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask).first
-            ?? URL(fileURLWithPath: FileManager.default.currentDirectoryPath)
-        return supportRoot
-            .appendingPathComponent("Offline LAN Games Helper", isDirectory: true)
-            .appendingPathComponent("backups", isDirectory: true)
+        let base: URL
+        if !defaultBackupFolder.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+            base = URL(fileURLWithPath: defaultBackupFolder)
+        } else {
+            let supportRoot = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask).first
+                ?? URL(fileURLWithPath: FileManager.default.currentDirectoryPath)
+            base = supportRoot
+                .appendingPathComponent("Offline LAN Games Helper", isDirectory: true)
+                .appendingPathComponent("backups", isDirectory: true)
+        }
+        return base
             .appendingPathComponent(safeFilename(game.name), isDirectory: true)
     }
 
@@ -1186,6 +1423,184 @@ struct ContentView: View {
         logLines.append("[\(timestamp)] \(message)")
         if logLines.count > 250 {
             logLines.removeFirst(logLines.count - 250)
+        }
+    }
+}
+
+struct KiwiLogoView: View {
+    var body: some View {
+        GeometryReader { proxy in
+            let size = min(proxy.size.width, proxy.size.height)
+            let center = CGPoint(x: proxy.size.width / 2, y: proxy.size.height / 2)
+            ZStack {
+                RoundedRectangle(cornerRadius: size * 0.22)
+                    .fill(Color(red: 0.93, green: 0.98, blue: 0.88))
+                    .overlay(
+                        RoundedRectangle(cornerRadius: size * 0.22)
+                            .stroke(Color(red: 0.30, green: 0.57, blue: 0.17), lineWidth: max(2, size * 0.025))
+                    )
+                Circle()
+                    .fill(Color(red: 0.35, green: 0.49, blue: 0.16))
+                    .frame(width: size * 0.78, height: size * 0.78)
+                Circle()
+                    .fill(Color(red: 0.42, green: 0.75, blue: 0.22))
+                    .frame(width: size * 0.67, height: size * 0.67)
+                Circle()
+                    .fill(Color(red: 0.81, green: 0.96, blue: 0.46))
+                    .frame(width: size * 0.38, height: size * 0.38)
+                ForEach(0..<18, id: \.self) { index in
+                    let angle = Double(index) / 18.0 * Double.pi * 2.0
+                    let x = center.x + CGFloat(cos(angle)) * size * 0.24
+                    let y = center.y + CGFloat(sin(angle)) * size * 0.22
+                    Capsule()
+                        .fill(Color(red: 0.08, green: 0.14, blue: 0.07))
+                        .frame(width: max(2, size * 0.025), height: max(4, size * 0.052))
+                        .position(x: x, y: y)
+                }
+                Circle()
+                    .fill(Color(red: 0.96, green: 1.0, blue: 0.82))
+                    .frame(width: size * 0.12, height: size * 0.12)
+                ForEach(0..<3, id: \.self) { index in
+                    let x = center.x + CGFloat(index - 1) * size * 0.19
+                    let y = center.y + size * 0.34
+                    Path { path in
+                        path.move(to: center)
+                        path.addLine(to: CGPoint(x: x, y: y))
+                    }
+                    .stroke(Color(red: 0.13, green: 0.41, blue: 0.16), lineWidth: max(2, size * 0.018))
+                    Circle()
+                        .fill(Color(red: 0.94, green: 0.99, blue: 0.96))
+                        .overlay(Circle().stroke(Color(red: 0.13, green: 0.41, blue: 0.16), lineWidth: max(1, size * 0.012)))
+                        .frame(width: size * 0.09, height: size * 0.09)
+                        .position(x: x, y: y)
+                }
+            }
+        }
+    }
+}
+
+struct SettingsView: View {
+    @Binding var language: String
+    @Binding var themePreference: String
+    @Binding var defaultOfflineMode: Bool
+    @Binding var showSafetyWarnings: Bool
+    @Binding var rememberLastSelectedGame: Bool
+    @Binding var prismLauncherPath: String
+    @Binding var defaultExportFolder: String
+    @Binding var defaultBackupFolder: String
+
+    let copyDonationLink: () -> Void
+    let openPayPalDonation: () -> Void
+    let openGitHubSponsors: () -> Void
+    let openPrivacyPolicy: () -> Void
+    let openRepository: () -> Void
+    let choosePrismPath: () -> Void
+    let chooseExportFolder: () -> Void
+    let chooseBackupFolder: () -> Void
+
+    private func t(_ key: String) -> String {
+        localizedText[language]?[key] ?? localizedText["en"]?[key] ?? key
+    }
+
+    var body: some View {
+        ScrollView {
+            VStack(alignment: .leading, spacing: 16) {
+                HStack(alignment: .center, spacing: 14) {
+                    KiwiLogoView()
+                        .frame(width: 72, height: 72)
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text(t("settings"))
+                            .font(.title2.bold())
+                        Text(t("privacy_local"))
+                            .foregroundStyle(.secondary)
+                    }
+                }
+
+                GroupBox(t("settings")) {
+                    VStack(alignment: .leading, spacing: 12) {
+                        Picker(t("language"), selection: $language) {
+                            Text("English").tag("en")
+                            Text("Italiano").tag("it")
+                        }
+                        .pickerStyle(.segmented)
+                        Picker(t("theme"), selection: $themePreference) {
+                            Text(t("system")).tag("system")
+                            Text(t("light")).tag("light")
+                            Text(t("dark")).tag("dark")
+                        }
+                        .pickerStyle(.segmented)
+                    }
+                    .padding(4)
+                }
+
+                GroupBox(t("default_behavior")) {
+                    VStack(alignment: .leading, spacing: 8) {
+                        Toggle(t("offline_mode"), isOn: $defaultOfflineMode)
+                        Toggle(t("show_safety_warnings"), isOn: $showSafetyWarnings)
+                        Toggle(t("remember_last_game"), isOn: $rememberLastSelectedGame)
+                    }
+                    .padding(4)
+                }
+
+                GroupBox(t("paths")) {
+                    VStack(alignment: .leading, spacing: 10) {
+                        settingsPathRow(title: t("prism_launcher_path"), value: prismLauncherPath, action: choosePrismPath)
+                        settingsPathRow(title: t("default_export_folder"), value: defaultExportFolder, action: chooseExportFolder)
+                        settingsPathRow(title: t("default_backup_folder"), value: defaultBackupFolder, action: chooseBackupFolder)
+                    }
+                    .padding(4)
+                }
+
+                GroupBox(t("support_project")) {
+                    VStack(alignment: .leading, spacing: 10) {
+                        Text("Offline LAN Games Helper is free to use. Donations are optional and do not unlock extra features.")
+                            .foregroundStyle(.secondary)
+                        HStack {
+                            Button(t("donate"), action: openPayPalDonation)
+                            Button(t("sponsor"), action: openGitHubSponsors)
+                            Button(t("copy_donation"), action: copyDonationLink)
+                        }
+                    }
+                    .padding(4)
+                }
+
+                GroupBox(t("about")) {
+                    VStack(alignment: .leading, spacing: 10) {
+                        Text("""
+                        Offline LAN Games Helper - macOS
+                        Version: \(appVersion)
+                        \(t("author"))
+                        \(t("license"))
+                        """)
+                        .textSelection(.enabled)
+                        HStack {
+                            Button(t("open_privacy"), action: openPrivacyPolicy)
+                            Button(t("open_repo"), action: openRepository)
+                        }
+                    }
+                    .padding(4)
+                }
+            }
+            .padding(14)
+        }
+    }
+
+    private func settingsPathRow(title: String, value: String, action: @escaping () -> Void) -> some View {
+        VStack(alignment: .leading, spacing: 4) {
+            Text(title)
+                .font(.caption)
+                .foregroundStyle(.secondary)
+            HStack {
+                Text(value.isEmpty ? "Not set" : value)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .lineLimit(1)
+                    .truncationMode(.middle)
+                    .textSelection(.enabled)
+                    .padding(6)
+                    .background(Color(nsColor: .textBackgroundColor))
+                    .clipShape(RoundedRectangle(cornerRadius: 6))
+                Button(language == "it" ? "Seleziona" : "Select", action: action)
+            }
         }
     }
 }

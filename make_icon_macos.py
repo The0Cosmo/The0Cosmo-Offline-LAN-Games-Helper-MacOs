@@ -1,12 +1,13 @@
 """
-Generate the Offline LAN Games Helper macOS icon.
+Generate the Offline LAN Games Helper macOS kiwi icon.
 
-The icon is original and generic: a monitor/gamepad with LAN nodes.
+The icon is original and logo-free: a green kiwi slice with LAN nodes.
 It uses no copyrighted game, launcher, platform, or store logos.
 """
 
 from __future__ import annotations
 
+import math
 from pathlib import Path
 
 from PIL import Image, ImageDraw
@@ -14,11 +15,12 @@ from PIL import Image, ImageDraw
 
 BASE_DIR = Path(__file__).resolve().parent
 ASSETS_DIR = BASE_DIR / "assets"
+KIWI_PNG_PATH = ASSETS_DIR / "kiwi_logo.png"
 PNG_PATH = ASSETS_DIR / "offline_lan_helper.png"
 ICNS_PATH = ASSETS_DIR / "offline_lan_helper.icns"
 
 
-def draw_icon(size: int = 1024) -> Image.Image:
+def draw_kiwi_icon(size: int = 1024) -> Image.Image:
     scale = size / 256
 
     def s(value: int) -> int:
@@ -29,66 +31,50 @@ def draw_icon(size: int = 1024) -> Image.Image:
 
     draw.rounded_rectangle(
         (s(14), s(14), s(242), s(242)),
-        radius=s(42),
-        fill=(20, 83, 99, 255),
-        outline=(103, 232, 249, 255),
-        width=s(4),
-    )
-    draw.rounded_rectangle(
-        (s(35), s(38), s(221), s(216)),
-        radius=s(30),
-        fill=(8, 145, 178, 255),
-        outline=(207, 250, 254, 170),
-        width=s(2),
-    )
-
-    # Monitor.
-    draw.rounded_rectangle(
-        (s(58), s(66), s(198), s(145)),
-        radius=s(14),
-        fill=(8, 47, 73, 255),
-        outline=(236, 254, 255, 255),
+        radius=s(48),
+        fill=(235, 250, 226, 255),
+        outline=(76, 145, 43, 255),
         width=s(5),
     )
-    draw.rectangle((s(112), s(146), s(144), s(166)), fill=(236, 254, 255, 255))
-    draw.rounded_rectangle((s(89), s(165), s(167), s(177)), radius=s(6), fill=(236, 254, 255, 255))
 
-    # LAN connections.
-    center = (s(128), s(112))
-    nodes = [(s(64), s(194)), (s(128), s(202)), (s(192), s(194))]
-    for node in nodes:
-        draw.line((center[0], center[1], node[0], node[1]), fill=(190, 242, 100, 255), width=s(5))
-    for node in nodes:
-        draw.ellipse(
-            (node[0] - s(14), node[1] - s(14), node[0] + s(14), node[1] + s(14)),
-            fill=(187, 247, 208, 255),
-            outline=(22, 101, 52, 255),
-            width=s(3),
-        )
+    draw.ellipse((s(42), s(40), s(214), s(212)), fill=(92, 124, 42, 255))
+    draw.ellipse((s(54), s(52), s(202), s(200)), fill=(106, 190, 54, 255))
+    draw.ellipse((s(80), s(78), s(176), s(174)), fill=(205, 244, 118, 255))
+    draw.ellipse((s(113), s(111), s(143), s(141)), fill=(244, 255, 209, 255))
 
-    # Generic gamepad.
-    draw.rounded_rectangle(
-        (s(76), s(96), s(180), s(136)),
-        radius=s(19),
-        fill=(15, 23, 42, 255),
-        outline=(125, 211, 252, 255),
-        width=s(3),
-    )
-    draw.rectangle((s(98), s(110), s(122), s(116)), fill=(240, 253, 250, 255))
-    draw.rectangle((s(107), s(101), s(113), s(125)), fill=(240, 253, 250, 255))
-    draw.ellipse((s(144), s(104), s(155), s(115)), fill=(240, 253, 250, 255))
-    draw.ellipse((s(159), s(115), s(170), s(126)), fill=(240, 253, 250, 255))
+    center = (s(128), s(126))
+    for index in range(18):
+        angle = (index / 18) * math.tau
+        x = int(center[0] + s(55) * math.cos(angle))
+        y = int(center[1] + s(49) * math.sin(angle))
+        draw.ellipse((x - s(3), y - s(4), x + s(3), y + s(4)), fill=(25, 42, 20, 255))
+
+    node_color = (240, 253, 244, 255)
+    line_color = (32, 105, 42, 255)
+    nodes = [(s(78), s(192)), (s(128), s(210)), (s(178), s(192))]
+    for node in nodes:
+        draw.line((center[0], center[1], node[0], node[1]), fill=line_color, width=s(4))
+    for node in nodes:
+        draw.ellipse((node[0] - s(10), node[1] - s(10), node[0] + s(10), node[1] + s(10)), fill=node_color, outline=line_color, width=s(3))
+
+    draw.ellipse((s(152), s(28), s(208), s(70)), fill=(68, 160, 52, 255), outline=(34, 94, 34, 255), width=s(3))
+    draw.line((s(158), s(64), s(195), s(38)), fill=(34, 94, 34, 255), width=s(3))
 
     return image
 
 
 def main() -> int:
     ASSETS_DIR.mkdir(exist_ok=True)
-    image = draw_icon()
+    image = draw_kiwi_icon()
+    image.save(KIWI_PNG_PATH)
     image.save(PNG_PATH)
-    image.save(ICNS_PATH, sizes=[(1024, 1024), (512, 512), (256, 256), (128, 128), (64, 64), (32, 32), (16, 16)])
+    try:
+        image.save(ICNS_PATH, sizes=[(1024, 1024), (512, 512), (256, 256), (128, 128), (64, 64), (32, 32), (16, 16)])
+        print(f"Wrote {ICNS_PATH}")
+    except Exception as exc:
+        print(f"Could not write .icns in this environment: {exc}")
+    print(f"Wrote {KIWI_PNG_PATH}")
     print(f"Wrote {PNG_PATH}")
-    print(f"Wrote {ICNS_PATH}")
     return 0
 
 

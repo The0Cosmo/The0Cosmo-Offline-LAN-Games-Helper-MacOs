@@ -36,6 +36,8 @@ chmod +x "$APP_BUNDLE/Contents/MacOS/$EXECUTABLE_NAME"
 cp "$SWIFT_PROJECT/Packaging/Info.plist" "$APP_BUNDLE/Contents/Info.plist"
 
 cp "$ROOT/assets/offline_lan_helper.icns" "$APP_BUNDLE/Contents/Resources/offline_lan_helper.icns"
+cp "$ROOT/assets/kiwi_logo.png" "$APP_BUNDLE/Contents/Resources/kiwi_logo.png"
+cp "$ROOT/assets/offline_lan_helper.png" "$APP_BUNDLE/Contents/Resources/offline_lan_helper.png"
 cp "$ROOT/games.json" "$APP_BUNDLE/Contents/Resources/games.json"
 cp "$ROOT/README.md" "$APP_BUNDLE/Contents/Resources/README.md"
 cp "$ROOT/PRIVACY.md" "$APP_BUNDLE/Contents/Resources/PRIVACY.md"

@@ -2,6 +2,8 @@
 
 Offline LAN Games Helper is a native macOS app for LAN/offline multiplayer games that you legally own. It helps with LAN IP discovery, macOS firewall guidance, normal game launching, game-specific tutorials, exported guides, and official dedicated server tools where a real supported server option exists.
 
+The current SwiftUI interface uses native system colors for readable light/dark appearance, a cleaner layout, larger controls, scrollable tutorial panels, and an original kiwi LAN logo.
+
 This project is not affiliated with Steam, Valve, Paradox, Epic Games, Rockstar, Riot Games, Mojang, Microsoft, Apple, or any game publisher.
 
 ## For Normal Users
@@ -73,6 +75,7 @@ Distribute the `.dmg` from GitHub Releases. End users should only need to downlo
 - Exports mod file lists for Minecraft Java and other modded games so players can compare setups.
 - Includes safe macOS controller guidance and diagnostics.
 - Shows English tutorials, ports, notes, troubleshooting, and privacy text.
+- Provides English and Italian UI labels from the Settings tab.
 - Exports Markdown LAN/server guides.
 - Helps with official dedicated server tools only when supported, including status for server processes started by this app.
 
@@ -95,6 +98,32 @@ On macOS, you may need to allow incoming connections for the game or server app 
 ```
 
 Use `Open macOS System Settings` to open System Settings safely. If the exact firewall pane is not available on your macOS version, open System Settings and search for `Firewall`.
+
+## New UI, Settings, and Language
+
+The app includes a `Settings` tab with:
+
+- language selection: English or Italiano;
+- theme selection: Light, Dark, or System default;
+- default Offline Mode behavior;
+- safety warning visibility;
+- remember last selected game;
+- Prism Launcher path;
+- default export and backup folders;
+- privacy, support, repository, version, author, and license information.
+
+Settings are saved locally with macOS user preferences or Application Support files and are never uploaded.
+
+## Kiwi Logo
+
+The app icon and Settings logo use original kiwi-themed artwork generated locally by `make_icon_macos.py`:
+
+```text
+assets/kiwi_logo.png
+assets/offline_lan_helper.icns
+```
+
+The icon does not use copyrighted game, launcher, PayPal, Steam, Paradox, Riot, Rockstar, or store logos.
 
 ## Server Tools
 
@@ -201,7 +230,7 @@ Offline LAN Games Helper is free to use.
 
 If the app helped you and you want to support development, you can donate here:
 
-- PayPal: https://paypal.me/REPLACE_WITH_MY_PAYPALME
+- PayPal: https://paypal.me/The0Cosmo
 - GitHub Sponsors: https://github.com/sponsors/The0Cosmo
 
 Donations are optional and do not unlock extra features.
