@@ -24,6 +24,18 @@ final class ConfigStore: ObservableObject {
         config.serverPaths[game.name]
     }
 
+    func saveFolder(for game: Game) -> String? {
+        config.saveFolders[game.name]
+    }
+
+    func modFolder(for game: Game) -> String? {
+        config.modFolders[game.name]
+    }
+
+    func serverLogPath(for game: Game) -> String? {
+        config.serverLogPaths[game.name]
+    }
+
     func setPath(_ path: String, for game: Game) {
         config.paths[game.name] = path
         save()
@@ -39,8 +51,32 @@ final class ConfigStore: ObservableObject {
         save()
     }
 
+    func setSaveFolder(_ path: String, for game: Game) {
+        config.saveFolders[game.name] = path
+        save()
+    }
+
+    func setModFolder(_ path: String, for game: Game) {
+        config.modFolders[game.name] = path
+        save()
+    }
+
+    func setServerLogPath(_ path: String, for game: Game) {
+        config.serverLogPaths[game.name] = path
+        save()
+    }
+
     func setSteamCMDPath(_ path: String) {
         config.steamcmdPath = path
+        save()
+    }
+
+    func saveControllerProfile(_ profile: ControllerProfile) {
+        config.controllerProfiles.removeAll {
+            $0.game.localizedCaseInsensitiveCompare(profile.game) == .orderedSame
+                && $0.controllerName.localizedCaseInsensitiveCompare(profile.controllerName) == .orderedSame
+        }
+        config.controllerProfiles.append(profile)
         save()
     }
 

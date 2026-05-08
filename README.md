@@ -24,11 +24,18 @@ The app itself works offline for:
 - LAN IP detection
 - tutorials
 - game path selection
+- launching already-installed games
+- LAN tests
+- save backups
+- mod-list export
+- controller diagnostics and profile notes
 - exporting guides
 
 ## Offline Mode
 
 After the app is downloaded and installed, normal LAN-helper features work offline. Optional server downloads and online-only games require internet and are not handled by this app.
+
+Use the `Offline Mode` toggle to hide or block optional internet/download actions. LAN IP detection, tutorials, path selection, launching installed games, LAN tests, backups, mod-list export, invite export, and guide export still work offline.
 
 If macOS blocks the app because it is unsigned or newly downloaded, use macOS System Settings privacy/security controls to allow the app. Do not download repacked copies from unofficial sites.
 
@@ -56,13 +63,18 @@ Distribute the `.dmg` from GitHub Releases. End users should only need to downlo
 - Shows network interface names when available.
 - Warns when multiple LAN/VPN adapters may confuse IP selection.
 - Copies the selected host IP.
+- Tests one user-entered or selected LAN IP with ping and one TCP port.
+- Generates copyable/exportable invite messages for friends.
 - Allows manual selection of `.app` bundles or executable files.
 - Saves local settings in the user's Application Support folder.
 - Launches selected games normally.
 - Opens macOS System Settings for firewall/permissions help.
+- Creates timestamped save/world backups and restores backups only after confirmation.
+- Exports mod file lists for Minecraft Java and other modded games so players can compare setups.
+- Includes safe macOS controller guidance and diagnostics.
 - Shows English tutorials, ports, notes, troubleshooting, and privacy text.
 - Exports Markdown LAN/server guides.
-- Helps with official dedicated server tools only when supported.
+- Helps with official dedicated server tools only when supported, including status for server processes started by this app.
 
 ## What The App Cannot Do
 
@@ -108,6 +120,61 @@ No supported dedicated server is available for this game. Host from inside the g
 
 If a game has no official dedicated server, use in-game hosting.
 
+The Server Tools tab also shows whether a dedicated server process started by this app is running or stopped. `Start Server` starts only the selected official server file. `Stop Server` asks for confirmation and only stops a server process that this app started for the selected game. It does not kill unrelated processes.
+
+## LAN Test / Connection Test
+
+Use `LAN Test` to test one IP address that you enter or select. The app can:
+
+- ping the target IP;
+- test one TCP port;
+- use the selected game's default ports from `games.json` when listed.
+
+This is not a scanner. It does not scan the internet, random IP ranges, or LAN ranges.
+
+## Invites
+
+Use `Copy Invite` or `Export Invite` to generate a ready-to-send message with the selected game name, host IP, port, and client join instructions.
+
+## Backups
+
+Use `Backups` to select a world/save folder and create timestamped `.zip` backups in the user's Application Support folder:
+
+```text
+Application Support/Offline LAN Games Helper/backups/GAME_NAME
+```
+
+Restore requires confirmation. Restoring can overwrite files with matching names, but the helper does not delete original saves.
+
+## Mod List Export
+
+Use `Mods` to select a mods folder and export file names, sizes, and modified dates. Share the exported list with other players so everyone can compare mod setups before joining a modded LAN session.
+
+The app does not download, install, or update mods.
+
+## Controller Helper on macOS
+
+The macOS version includes safe controller guidance and diagnostics.
+
+It can open macOS settings, show basic connected controller information where available, and provide Steam Input / local multiplayer setup checklists.
+
+HidHide and DS4Windows are Windows-only and are not included in the macOS version.
+
+The app does not install drivers, hook input, inject into games, patch executables, or bypass anti-cheat/DRM.
+
+The Controller Helper can:
+
+- open Bluetooth Settings;
+- open Game Controller Settings if the current macOS version provides that pane;
+- open Privacy & Security Settings;
+- open Steam or Steam Support help;
+- copy a macOS controller checklist;
+- copy a Steam Input checklist;
+- show controller name/status through Apple's local GameController framework when available;
+- save local multiplayer controller profile notes on your Mac.
+
+For Minecraft Java and Prism Launcher, controller mods may not isolate input per window. Do not use Controlify and MidnightControls together. Use only one controller mod at a time and keep separate Prism Launcher instances/configs per player when testing.
+
 ## Game Filtering
 
 The macOS catalog keeps only games that are macOS-compatible and have real offline LAN, local hosting, or official dedicated server possibilities.
@@ -127,6 +194,17 @@ Included macOS catalog:
 - 0 A.D.
 
 Removed from macOS: VALORANT, osu!, Grand Theft Auto V, Cyberpunk 2077, Paradox Launcher v2, BombSquad, Crab Game, Muck, Windows-only games, online-only games, matchmaking-only games, and uncertain games.
+
+## Support / Donate
+
+Offline LAN Games Helper is free to use.
+
+If the app helped you and you want to support development, you can donate here:
+
+- PayPal: https://paypal.me/REPLACE_WITH_MY_PAYPALME
+- GitHub Sponsors: https://github.com/sponsors/The0Cosmo
+
+Donations are optional and do not unlock extra features.
 
 ## Privacy
 
