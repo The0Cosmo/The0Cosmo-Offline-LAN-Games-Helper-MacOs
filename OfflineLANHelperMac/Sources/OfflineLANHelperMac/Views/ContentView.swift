@@ -61,7 +61,41 @@ private let localizedText: [String: [String: String]] = [
         "open_repo": "Open GitHub Repository",
         "about": "About",
         "author": "Author: The0Cosmo",
-        "license": "Personal, non-commercial use only. See LICENSE for full terms."
+        "license": "Personal, non-commercial use only. See LICENSE for full terms.",
+        "tool_manager": "Tool Manager",
+        "show_tool": "Show Tool",
+        "hide_tool": "Hide Tool",
+        "enable_tool": "Enable Tool",
+        "disable_tool": "Disable Tool",
+        "restore_all_tools": "Restore All Tools",
+        "suggest_unused_tools": "Suggest Unused Tools",
+        "hidden_tools_can_be_restored": "Hidden tools can be restored at any time.",
+        "tool_manager_safety": "This only changes the app interface. It does not uninstall external programs or delete games.",
+        "refresh_games": "Refresh Games",
+        "refresh_detection": "Refresh Installed Detection",
+        "default_filter": "Default filter",
+        "show_all_games": "Show All Games",
+        "show_installed_only": "Show Installed Only",
+        "favorites": "Favorites",
+        "dedicated_server": "Dedicated Server",
+        "in_game_host": "In-Game Hosting",
+        "copy_invite": "Copy Invite",
+        "export_invite": "Export Invite .txt",
+        "copy_ip_only": "Copy IP Only",
+        "copy_ip_port_only": "Copy IP:Port Only",
+        "copy_join_address": "Copy Join Address",
+        "invite_mode": "Invite Mode",
+        "ip_only": "IP Only",
+        "ip_port_only": "IP:Port Only",
+        "short_invite": "Short Invite",
+        "full_useful_invite": "Full Useful Invite",
+        "server_password": "Server Password",
+        "lan_vpn_mode": "LAN/VPN Mode",
+        "ui_scale": "UI scale",
+        "settings_core_note": "Settings, About, Privacy, and Tool Manager are core pages and cannot be hidden."
+        ,"hide_unused_tools_automatically": "Hide unused tools automatically",
+        "show_hidden_games": "Show hidden games",
+        "include_lan_vpn_note": "Include LAN/VPN note"
     ],
     "it": [
         "app_title": "Offline LAN Games Helper - macOS",
@@ -115,7 +149,41 @@ private let localizedText: [String: [String: String]] = [
         "open_repo": "Apri repository GitHub",
         "about": "Informazioni",
         "author": "Autore: The0Cosmo",
-        "license": "Solo uso personale e non commerciale. Vedi LICENSE per i termini completi."
+        "license": "Solo uso personale e non commerciale. Vedi LICENSE per i termini completi.",
+        "tool_manager": "Gestore strumenti",
+        "show_tool": "Mostra strumento",
+        "hide_tool": "Nascondi strumento",
+        "enable_tool": "Abilita strumento",
+        "disable_tool": "Disabilita strumento",
+        "restore_all_tools": "Ripristina tutti gli strumenti",
+        "suggest_unused_tools": "Suggerisci strumenti non usati",
+        "hidden_tools_can_be_restored": "Gli strumenti nascosti possono essere ripristinati in qualsiasi momento.",
+        "tool_manager_safety": "Questo cambia solo l'interfaccia dell'app. Non disinstalla programmi esterni e non cancella giochi.",
+        "refresh_games": "Aggiorna giochi",
+        "refresh_detection": "Aggiorna rilevamento installati",
+        "default_filter": "Filtro predefinito",
+        "show_all_games": "Mostra tutti i giochi",
+        "show_installed_only": "Mostra solo installati",
+        "favorites": "Preferiti",
+        "dedicated_server": "Server dedicato",
+        "in_game_host": "Host nel gioco",
+        "copy_invite": "Copia invito",
+        "export_invite": "Esporta invito .txt",
+        "copy_ip_only": "Copia solo IP",
+        "copy_ip_port_only": "Copia IP:Porta",
+        "copy_join_address": "Copia indirizzo di accesso",
+        "invite_mode": "Modalita invito",
+        "ip_only": "Solo IP",
+        "ip_port_only": "Solo IP:Porta",
+        "short_invite": "Invito breve",
+        "full_useful_invite": "Invito utile completo",
+        "server_password": "Password server",
+        "lan_vpn_mode": "Modalita LAN/VPN",
+        "ui_scale": "Scala interfaccia",
+        "settings_core_note": "Impostazioni, Informazioni, Privacy e Gestore strumenti sono pagine principali e non possono essere nascoste."
+        ,"hide_unused_tools_automatically": "Nascondi automaticamente strumenti non usati",
+        "show_hidden_games": "Mostra giochi nascosti",
+        "include_lan_vpn_note": "Includi nota LAN/VPN"
     ]
 ]
 private let macControllerChecklist = """
@@ -162,8 +230,22 @@ Local Configuration
 - These files stay on your device.
 
 Settings and Language
-- The app may save local preferences such as selected language, theme, selected paths, and offline mode.
+- The app may save local preferences such as selected language, theme, UI scale, selected paths, hidden tools, enabled tools, default invite mode, and offline mode.
 - These settings stay on your device and are not uploaded.
+
+Tool Manager
+- The app may save which optional helper tools are hidden or disabled.
+- These preferences stay on your device and are not uploaded.
+
+Invite Export
+- The app may generate invite text using the selected local IP address, port, game name, and optional password entered by you.
+- Invite text is copied or exported only when you click the related button.
+- The app does not upload invite text.
+
+Local Detection and Cache
+- The app may cache local game detection results and UI preferences to improve performance.
+- This data stays on your device and is not uploaded.
+- The app does not scan the entire disk aggressively.
 
 Internet Access
 - Normal LAN helper features should not require internet access.
@@ -205,9 +287,20 @@ struct ContentView: View {
     @AppStorage("prismLauncherPath") private var prismLauncherPath = ""
     @AppStorage("defaultExportFolder") private var defaultExportFolder = ""
     @AppStorage("defaultBackupFolder") private var defaultBackupFolder = ""
+    @AppStorage("hiddenTools") private var hiddenToolsRaw = ""
+    @AppStorage("disabledTools") private var disabledToolsRaw = ""
+    @AppStorage("defaultGameFilter") private var defaultGameFilter = "all"
+    @AppStorage("showHiddenGames") private var showHiddenGames = false
+    @AppStorage("installedGamesRaw") private var installedGamesRaw = ""
+    @AppStorage("favoriteGamesRaw") private var favoriteGamesRaw = ""
+    @AppStorage("defaultInviteMode") private var defaultInviteMode = "short"
+    @AppStorage("includeLanVpnNote") private var includeLanVpnNote = true
+    @AppStorage("uiScale") private var uiScale = "100%"
+    @AppStorage("hideUnusedToolsAutomatically") private var hideUnusedToolsAutomatically = false
 
     @State private var builtInGames = GameCatalog.loadBuiltInGames()
     @State private var selectedGameID: String?
+    @State private var selectedTab = "tutorial"
     @State private var selectedIP = ""
     @State private var searchText = ""
     @State private var logLines: [String] = []
@@ -225,6 +318,10 @@ struct ContentView: View {
     @State private var controllerProfileConnection = ""
     @State private var controllerProfileNotes = ""
     @State private var controllerProfileRecommendation = "Use native game controller support first. If needed, test Steam Input."
+    @State private var detectionStatus = "Supported games are loaded locally."
+    @State private var invitePassword = ""
+    @State private var inviteLanMode = "LAN"
+    @State private var invitePort = ""
 
     private var allGames: [Game] {
         let custom = configStore.config.customGames.filter { $0.platforms.contains("macOS") }
@@ -232,10 +329,28 @@ struct ContentView: View {
     }
 
     private var filteredGames: [Game] {
-        if searchText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
-            return allGames
+        let installed = csvSet(installedGamesRaw)
+        let favorites = csvSet(favoriteGamesRaw)
+        var games = allGames
+        switch defaultGameFilter {
+        case "installed":
+            if !installed.isEmpty {
+                games = games.filter { installed.contains($0.id) }
+            }
+        case "favorites":
+            games = games.filter { favorites.contains($0.id) }
+        case "dedicated_server":
+            games = games.filter { !["none", "in_game_host"].contains($0.serverSupport) }
+        case "in_game_host":
+            games = games.filter { $0.serverSupport == "in_game_host" }
+        default:
+            break
         }
-        return allGames.filter { $0.name.localizedCaseInsensitiveContains(searchText) }
+        let query = searchText.trimmingCharacters(in: .whitespacesAndNewlines)
+        if !query.isEmpty {
+            games = games.filter { $0.name.localizedCaseInsensitiveContains(query) }
+        }
+        return games
     }
 
     private var selectedGame: Game? {
@@ -258,6 +373,51 @@ struct ContentView: View {
 
     private func t(_ key: String) -> String {
         localizedText[language]?[key] ?? localizedText["en"]?[key] ?? key
+    }
+
+    private func csvSet(_ value: String) -> Set<String> {
+        Set(value.split(separator: ",").map { String($0) }.filter { !$0.isEmpty })
+    }
+
+    private func writeCSV(_ values: Set<String>) -> String {
+        values.sorted().joined(separator: ",")
+    }
+
+    private func csvSet(_ value: String) -> Set<String> {
+        Set(value.split(separator: ",").map { String($0) }.filter { !$0.isEmpty })
+    }
+
+    private func writeCSV(_ values: Set<String>) -> String {
+        values.sorted().joined(separator: ",")
+    }
+
+    private var hiddenTools: Set<String> { csvSet(hiddenToolsRaw) }
+    private var disabledTools: Set<String> { csvSet(disabledToolsRaw) }
+    private var optionalMacTools: [(String, String)] {
+        [
+            ("server_tools", t("server_tools")),
+            ("lan_test", t("lan_test")),
+            ("invite_export", t("invite")),
+            ("backup_tools", t("backups")),
+            ("controller_tools", t("controller_helper")),
+            ("macos_controller_helper", t("controller_helper")),
+            ("custom_games", t("add_custom_game")),
+            ("support", t("support"))
+        ]
+    }
+
+    private func toolVisible(_ id: String) -> Bool {
+        !hiddenTools.contains(id) && !disabledTools.contains(id)
+    }
+
+    private var uiScaleValue: Double {
+        switch uiScale {
+        case "90%": return 0.9
+        case "110%": return 1.1
+        case "125%": return 1.25
+        case "150%": return 1.5
+        default: return 1.0
+        }
     }
 
     var body: some View {
@@ -285,6 +445,7 @@ struct ContentView: View {
             lanTestIP = network.primaryIP
             if let game = selectedGame {
                 lanTestPort = defaultTCPPort(for: game)
+                invitePort = defaultTCPPort(for: game)
                 saveFolderPath = configStore.saveFolder(for: game) ?? ""
                 modFolderPath = configStore.modFolder(for: game) ?? ""
                 controllerProfileGame = game.name
@@ -303,6 +464,7 @@ struct ContentView: View {
                     lastSelectedGameID = game.id
                 }
                 lanTestPort = defaultTCPPort(for: game)
+                invitePort = defaultTCPPort(for: game)
                 saveFolderPath = configStore.saveFolder(for: game) ?? ""
                 modFolderPath = configStore.modFolder(for: game) ?? ""
                 controllerProfileGame = game.name
@@ -317,6 +479,7 @@ struct ContentView: View {
             }
         }
         .preferredColorScheme(preferredScheme)
+        .frame(minWidth: 1100, minHeight: 720)
     }
 
     private var header: some View {
@@ -349,6 +512,10 @@ struct ContentView: View {
                     Text("Multiple LAN/VPN adapters detected.")
                         .foregroundColor(.orange)
                 }
+                Button(t("settings")) {
+                    selectedTab = "settings"
+                    log("Opened Settings.")
+                }
             }
         }
         .padding(12)
@@ -361,31 +528,61 @@ struct ContentView: View {
                 .foregroundStyle(.secondary)
             TextField(t("search_games"), text: $searchText)
                 .textFieldStyle(.roundedBorder)
+            Picker(t("default_filter"), selection: $defaultGameFilter) {
+                Text(t("show_all_games")).tag("all")
+                Text(t("show_installed_only")).tag("installed")
+                Text(t("favorites")).tag("favorites")
+                Text(t("dedicated_server")).tag("dedicated_server")
+                Text(t("in_game_host")).tag("in_game_host")
+            }
+            .pickerStyle(.menu)
+            HStack {
+                Button(t("refresh_games")) {
+                    builtInGames = GameCatalog.loadBuiltInGames()
+                    log("Game catalog refreshed from bundled/local games.json.")
+                }
+                Button(t("refresh_detection")) {
+                    refreshInstalledDetection()
+                }
+            }
+            Text(detectionStatus)
+                .font(.caption)
+                .foregroundStyle(.secondary)
             List(selection: $selectedGameID) {
                 ForEach(filteredGames) { game in
                     Text(game.custom ? "\(game.name) (custom)" : game.name)
                         .tag(Optional(game.id))
                 }
             }
-            Button(t("add_custom_game")) {
-                showingCustomGameSheet = true
-                log("Clicked: Add Custom Game")
+            if toolVisible("custom_games") {
+                Button(t("add_custom_game")) {
+                    showingCustomGameSheet = true
+                    log("Clicked: Add Custom Game")
+                }
+                .buttonStyle(.borderedProminent)
             }
-            .buttonStyle(.borderedProminent)
+            if filteredGames.isEmpty {
+                Text("No matching games found.")
+                    .font(.caption)
+                    .foregroundColor(.orange)
+            }
         }
-        .frame(width: 280)
+        .frame(minWidth: 280, idealWidth: 310, maxWidth: 360)
         .padding(12)
     }
 
     private var mainPanel: some View {
         Group {
             if let game = selectedGame {
-                TabView {
+                TabView(selection: $selectedTab) {
                     TextDocumentView(text: tutorialText(for: game))
                         .tabItem { Text(t("tutorial")) }
+                        .tag("tutorial")
                     NetworkTab(network: network, selectedIP: $selectedIP, copy: copySelectedIP)
                         .tabItem { Text(t("network")) }
-                    LanTestView(
+                        .tag("network")
+                    if toolVisible("lan_test") {
+                        LanTestView(
                         game: game,
                         targetIP: $lanTestIP,
                         tcpPort: $lanTestPort,
@@ -400,13 +597,18 @@ struct ContentView: View {
                         },
                         onPing: { pingTest() },
                         onTCPTest: { tcpPortTest() }
-                    )
-                    .tabItem { Text(t("lan_test")) }
+                        )
+                        .tabItem { Text(t("lan_test")) }
+                        .tag("lan_test")
+                    }
                     TextDocumentView(text: firewallText)
                         .tabItem { Text(t("firewall_permissions")) }
+                        .tag("firewall")
                     TextDocumentView(text: gamePathText(for: game))
                         .tabItem { Text(t("game_path")) }
-                    ServerToolsView(
+                        .tag("game_path")
+                    if toolVisible("server_tools") {
+                        ServerToolsView(
                         game: game,
                         selectedServerPath: configStore.serverPath(for: game),
                         steamcmdPath: configStore.config.steamcmdPath,
@@ -422,15 +624,37 @@ struct ContentView: View {
                         onInstallWithSteamCMD: { installWithSteamCMD(for: game) },
                         onOpenOfficialDownload: { openOfficialDownload(for: game) },
                         onExportServerGuide: { exportServerGuide(for: game) }
-                    )
-                    .tabItem { Text(t("server_tools")) }
-                    InviteView(inviteText: inviteText(for: game), onCopy: { copyInvite(for: game) }, onExport: { exportInvite(for: game) })
+                        )
+                        .tabItem { Text(t("server_tools")) }
+                        .tag("server_tools")
+                    }
+                    if toolVisible("invite_export") {
+                        InviteView(
+                            inviteText: inviteText(for: game),
+                            hostIP: selectedIP.isEmpty ? network.primaryIP : selectedIP,
+                            port: $invitePort,
+                            password: $invitePassword,
+                            lanMode: $inviteLanMode,
+                            mode: $defaultInviteMode,
+                            onCopy: { copyInvite(for: game) },
+                            onExport: { exportInvite(for: game) },
+                            onCopyIPOnly: { copyInviteText(inviteText(for: game, mode: "ip_only"), label: "IP") },
+                            onCopyIPPortOnly: { copyInviteText(inviteText(for: game, mode: "ip_port_only"), label: "IP:Port") },
+                            onCopyJoinAddress: { copyInviteText(joinAddress(for: game), label: "join address") }
+                        )
                         .tabItem { Text(t("invite")) }
-                    BackupView(saveFolderPath: $saveFolderPath, onSelectFolder: { selectSaveFolder(for: game) }, onCreateBackup: { createSaveBackup(for: game) }, onRestoreBackup: { restoreSaveBackup(for: game) })
-                        .tabItem { Text(t("backups")) }
+                        .tag("invite")
+                    }
+                    if toolVisible("backup_tools") {
+                        BackupView(saveFolderPath: $saveFolderPath, onSelectFolder: { selectSaveFolder(for: game) }, onCreateBackup: { createSaveBackup(for: game) }, onRestoreBackup: { restoreSaveBackup(for: game) })
+                            .tabItem { Text(t("backups")) }
+                            .tag("backups")
+                    }
                     ModsView(modFolderPath: $modFolderPath, onSelectFolder: { selectModFolder(for: game) }, onExportModList: { exportModList(for: game) })
                         .tabItem { Text(t("mods")) }
-                    ControllerHelperView(
+                        .tag("mods")
+                    if toolVisible("controller_tools") && toolVisible("macos_controller_helper") {
+                        ControllerHelperView(
                         controllers: controllerInfos,
                         profiles: configStore.config.controllerProfiles,
                         game: $controllerProfileGame,
@@ -447,19 +671,31 @@ struct ContentView: View {
                         onCopyChecklist: { copyText(macControllerChecklist, label: "macOS controller checklist") },
                         onCopySteamChecklist: { copyText(steamInputChecklist, label: "Steam Input checklist") },
                         onSaveProfile: saveControllerProfile
-                    )
-                    .tabItem { Text(t("controller_helper")) }
+                        )
+                        .tabItem { Text(t("controller_helper")) }
+                        .tag("controller")
+                    }
                     TextDocumentView(text: troubleshootingText(for: game))
                         .tabItem { Text(t("troubleshooting")) }
+                        .tag("troubleshooting")
                     SettingsView(
                         language: $language,
                         themePreference: $themePreference,
                         defaultOfflineMode: $defaultOfflineMode,
                         showSafetyWarnings: $showSafetyWarnings,
                         rememberLastSelectedGame: $rememberLastSelectedGame,
+                        hiddenToolsRaw: $hiddenToolsRaw,
+                        disabledToolsRaw: $disabledToolsRaw,
+                        hideUnusedToolsAutomatically: $hideUnusedToolsAutomatically,
+                        defaultGameFilter: $defaultGameFilter,
+                        showHiddenGames: $showHiddenGames,
+                        defaultInviteMode: $defaultInviteMode,
+                        includeLanVpnNote: $includeLanVpnNote,
+                        uiScale: $uiScale,
                         prismLauncherPath: $prismLauncherPath,
                         defaultExportFolder: $defaultExportFolder,
                         defaultBackupFolder: $defaultBackupFolder,
+                        optionalTools: optionalMacTools,
                         copyDonationLink: copyDonationLink,
                         openPayPalDonation: openPayPalDonation,
                         openGitHubSponsors: openGitHubSponsors,
@@ -485,15 +721,20 @@ struct ContentView: View {
                         }
                     )
                     .tabItem { Text(t("settings")) }
-                    SupportView(
-                        offlineMode: offlineMode,
-                        onPayPal: openPayPalDonation,
-                        onSponsors: openGitHubSponsors,
-                        onCopy: copyDonationLink
-                    )
-                    .tabItem { Text(t("support")) }
+                    .tag("settings")
+                    if toolVisible("support") {
+                        SupportView(
+                            offlineMode: offlineMode,
+                            onPayPal: openPayPalDonation,
+                            onSponsors: openGitHubSponsors,
+                            onCopy: copyDonationLink
+                        )
+                        .tabItem { Text(t("support")) }
+                        .tag("support")
+                    }
                     TextDocumentView(text: privacyText)
                         .tabItem { Text(t("privacy")) }
+                        .tag("privacy")
                 }
                 .padding(8)
             } else {
@@ -595,10 +836,10 @@ struct ContentView: View {
     }
 
     private func gamePathText(for game: Game) -> String {
-        let selected = configStore.path(for: game) ?? detectGamePathWithoutSaving(for: game) ?? "not detected"
+        let selected = configStore.path(for: game) ?? "not selected. Use Detect Game Path or Manual Select Game."
         return """
         Game: \(game.name)
-        Detected/selected app or executable: \(selected)
+        Selected app or executable: \(selected)
 
         Common macOS paths searched:
         \(formatList(game.commonPathsMacos))
@@ -607,6 +848,7 @@ struct ContentView: View {
         \(formatList(game.steamFolders))
 
         Manual paths are saved locally in Application Support.
+        Detection is manual and does not scan the whole disk.
         """
     }
 
@@ -632,7 +874,30 @@ struct ContentView: View {
             return
         }
         configStore.setPath(path, for: game)
+        var installed = csvSet(installedGamesRaw)
+        installed.insert(game.id)
+        installedGamesRaw = writeCSV(installed)
         log("Detected path for \(game.name): \(path)")
+    }
+
+    private func refreshInstalledDetection() {
+        detectionStatus = "Detecting installed games..."
+        let games = allGames
+        DispatchQueue.global(qos: .utility).async {
+            var installed = Set<String>()
+            for game in games {
+                if detectGamePathWithoutSaving(for: game) != nil {
+                    installed.insert(game.id)
+                }
+            }
+            DispatchQueue.main.async {
+                installedGamesRaw = writeCSV(installed)
+                detectionStatus = installed.isEmpty
+                    ? "No installed supported games were detected. Showing all supported games."
+                    : "Installed detection complete: \(installed.count) detected."
+                log(detectionStatus)
+            }
+        }
     }
 
     private func detectGamePathWithoutSaving(for game: Game) -> String? {
@@ -668,6 +933,9 @@ struct ContentView: View {
             return
         }
         configStore.setPath(url.path, for: game)
+        var installed = csvSet(installedGamesRaw)
+        installed.insert(game.id)
+        installedGamesRaw = writeCSV(installed)
         log("Saved game path for \(game.name): \(url.path)")
     }
 
@@ -838,34 +1106,83 @@ struct ContentView: View {
         }
     }
 
-    private func inviteText(for game: Game) -> String {
+    private func invitePortValue(for game: Game) -> String {
+        if !invitePort.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+            return invitePort.trimmingCharacters(in: .whitespacesAndNewlines)
+        }
+        if let port = firstPortNumber(firstPortRange(game.ports) ?? firstPortRange(game.serverPorts) ?? "") {
+            return String(port)
+        }
+        return ""
+    }
+
+    private func joinAddress(for game: Game) -> String {
         let ip = selectedIP.isEmpty ? (network.primaryIP.isEmpty ? "HOST_LAN_IP" : network.primaryIP) : selectedIP
-        let port = firstPortRange(game.ports) ?? firstPortRange(game.serverPorts) ?? "varies by game/server"
-        let steps = game.clientTutorial.enumerated().map { "\($0.offset + 1). \($0.element)" }.joined(separator: "\n")
-        return """
-        Offline LAN invite for \(game.name)
+        let port = invitePortValue(for: game)
+        return port.isEmpty ? ip : "\(ip):\(port)"
+    }
 
-        Host IP: \(ip)
-        Port(s): \(port)
+    private func shortJoinInstruction(for game: Game, joinAddress: String) -> String {
+        if let step = game.clientTutorial.first(where: {
+            let lower = $0.lowercased()
+            return lower.contains("join") || lower.contains("lan") || lower.contains("direct") || lower.contains("ip")
+        }) {
+            return step.replacingOccurrences(of: "HOST_LAN_IP", with: joinAddress)
+        }
+        return "Use the game's LAN/direct connect option and enter \(joinAddress)."
+    }
 
-        Join steps:
-        \(steps.isEmpty ? "Use the game's LAN/local network join option." : steps)
-
-        Notes:
-        - Join the same LAN or VPN LAN as the host.
-        - Use the same game version and matching mods/content.
-        - This invite is for legitimate local/offline play only.
-        """
+    private func inviteText(for game: Game, mode: String? = nil) -> String {
+        let modeID = mode ?? defaultInviteMode
+        let ip = selectedIP.isEmpty ? (network.primaryIP.isEmpty ? "HOST_LAN_IP" : network.primaryIP) : selectedIP
+        let port = invitePortValue(for: game)
+        let join = joinAddress(for: game)
+        if modeID == "ip_only" {
+            return ip
+        }
+        if modeID == "ip_port_only" {
+            return join
+        }
+        let note = includeLanVpnNote ? "Same LAN/VPN and same game/mod version required." : "Same game/mod version required."
+        let how = shortJoinInstruction(for: game, joinAddress: join)
+        if modeID == "short" {
+            return """
+            Game: \(game.name)
+            Join: \(join)
+            How to join: \(how)
+            Note: \(note)
+            """
+        }
+        var lines = [
+            "Game: \(game.name)",
+            "Join: \(join)"
+        ]
+        if !port.isEmpty {
+            lines.append("Port: \(port)")
+        }
+        if !invitePassword.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+            lines.append("Password: \(invitePassword.trimmingCharacters(in: .whitespacesAndNewlines))")
+        }
+        if !inviteLanMode.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+            lines.append("Mode: \(inviteLanMode)")
+        }
+        lines.append("How to join: \(how)")
+        lines.append("Note: \(note)")
+        return lines.joined(separator: "\n")
     }
 
     private func copyInvite(for game: Game) {
+        copyInviteText(inviteText(for: game), label: "invite for \(game.name)")
+    }
+
+    private func copyInviteText(_ text: String, label: String) {
         NSPasteboard.general.clearContents()
-        NSPasteboard.general.setString(inviteText(for: game), forType: .string)
-        log("Invite copied for \(game.name).")
+        NSPasteboard.general.setString(text, forType: .string)
+        log("Copied \(label).")
     }
 
     private func exportInvite(for game: Game) {
-        writeMarkdown(defaultName: "\(safeFilename(game.name))_Invite.md", text: inviteText(for: game))
+        writeTextFile(defaultName: "\(safeFilename(game.name))_Invite.txt", text: inviteText(for: game))
     }
 
     private func openSystemSettings() {
@@ -1324,6 +1641,25 @@ struct ContentView: View {
         }
     }
 
+    private func writeTextFile(defaultName: String, text: String) {
+        let panel = NSSavePanel()
+        panel.nameFieldStringValue = defaultName
+        panel.allowedFileTypes = ["txt"]
+        if !defaultExportFolder.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+            panel.directoryURL = URL(fileURLWithPath: defaultExportFolder)
+        }
+        guard panel.runModal() == .OK, let url = panel.url else {
+            log("Export canceled.")
+            return
+        }
+        do {
+            try text.write(to: url, atomically: true, encoding: .utf8)
+            log("Exported invite: \(url.path)")
+        } catch {
+            log("Export failed: \(error.localizedDescription)")
+        }
+    }
+
     private func exportText(for game: Game) -> String {
         """
         # \(game.name) - Offline/LAN Tutorial
@@ -1485,9 +1821,18 @@ struct SettingsView: View {
     @Binding var defaultOfflineMode: Bool
     @Binding var showSafetyWarnings: Bool
     @Binding var rememberLastSelectedGame: Bool
+    @Binding var hiddenToolsRaw: String
+    @Binding var disabledToolsRaw: String
+    @Binding var hideUnusedToolsAutomatically: Bool
+    @Binding var defaultGameFilter: String
+    @Binding var showHiddenGames: Bool
+    @Binding var defaultInviteMode: String
+    @Binding var includeLanVpnNote: Bool
+    @Binding var uiScale: String
     @Binding var prismLauncherPath: String
     @Binding var defaultExportFolder: String
     @Binding var defaultBackupFolder: String
+    let optionalTools: [(String, String)]
 
     let copyDonationLink: () -> Void
     let openPayPalDonation: () -> Void
@@ -1529,6 +1874,14 @@ struct SettingsView: View {
                             Text(t("dark")).tag("dark")
                         }
                         .pickerStyle(.segmented)
+                        Picker(t("ui_scale"), selection: $uiScale) {
+                            Text("90%").tag("90%")
+                            Text("100%").tag("100%")
+                            Text("110%").tag("110%")
+                            Text("125%").tag("125%")
+                            Text("150%").tag("150%")
+                        }
+                        .pickerStyle(.segmented)
                     }
                     .padding(4)
                 }
@@ -1538,6 +1891,86 @@ struct SettingsView: View {
                         Toggle(t("offline_mode"), isOn: $defaultOfflineMode)
                         Toggle(t("show_safety_warnings"), isOn: $showSafetyWarnings)
                         Toggle(t("remember_last_game"), isOn: $rememberLastSelectedGame)
+                    }
+                    .padding(4)
+                }
+
+                GroupBox(t("tool_manager")) {
+                    VStack(alignment: .leading, spacing: 10) {
+                        Text(t("tool_manager_safety"))
+                            .foregroundColor(.orange)
+                        Text(t("hidden_tools_can_be_restored"))
+                            .foregroundStyle(.secondary)
+                        ForEach(optionalTools.indices, id: \.self) { index in
+                            let tool = optionalTools[index]
+                            let hidden = csvSet(hiddenToolsRaw).contains(tool.0)
+                            let disabled = csvSet(disabledToolsRaw).contains(tool.0)
+                            HStack {
+                                VStack(alignment: .leading) {
+                                    Text(tool.1)
+                                    Text(tool.0)
+                                        .font(.caption)
+                                        .foregroundStyle(.secondary)
+                                }
+                                Spacer()
+                                Button(hidden ? t("show_tool") : t("hide_tool")) {
+                                    var values = csvSet(hiddenToolsRaw)
+                                    if hidden {
+                                        values.remove(tool.0)
+                                    } else {
+                                        values.insert(tool.0)
+                                    }
+                                    hiddenToolsRaw = writeCSV(values)
+                                }
+                                Button(disabled ? t("enable_tool") : t("disable_tool")) {
+                                    var values = csvSet(disabledToolsRaw)
+                                    if disabled {
+                                        values.remove(tool.0)
+                                    } else {
+                                        values.insert(tool.0)
+                                    }
+                                    disabledToolsRaw = writeCSV(values)
+                                }
+                            }
+                        }
+                        HStack {
+                            Button(t("restore_all_tools")) {
+                                hiddenToolsRaw = ""
+                                disabledToolsRaw = ""
+                            }
+                            Button(t("suggest_unused_tools")) {
+                                var hidden = csvSet(hiddenToolsRaw)
+                                hidden.insert("support")
+                                hiddenToolsRaw = writeCSV(hidden)
+                            }
+                        }
+                        Toggle(t("hide_unused_tools_automatically"), isOn: $hideUnusedToolsAutomatically)
+                        Text(t("settings_core_note"))
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                    }
+                    .padding(4)
+                }
+
+                GroupBox("\(t("game_list")) / \(t("invite"))") {
+                    VStack(alignment: .leading, spacing: 10) {
+                        Picker(t("default_filter"), selection: $defaultGameFilter) {
+                            Text(t("show_all_games")).tag("all")
+                            Text(t("show_installed_only")).tag("installed")
+                            Text(t("favorites")).tag("favorites")
+                            Text(t("dedicated_server")).tag("dedicated_server")
+                            Text(t("in_game_host")).tag("in_game_host")
+                        }
+                        .pickerStyle(.menu)
+                        Toggle(t("show_hidden_games"), isOn: $showHiddenGames)
+                        Picker(t("invite_mode"), selection: $defaultInviteMode) {
+                            Text(t("ip_only")).tag("ip_only")
+                            Text(t("ip_port_only")).tag("ip_port_only")
+                            Text(t("short_invite")).tag("short")
+                            Text(t("full_useful_invite")).tag("full")
+                        }
+                        .pickerStyle(.menu)
+                        Toggle(t("include_lan_vpn_note"), isOn: $includeLanVpnNote)
                     }
                     .padding(4)
                 }
@@ -1705,22 +2138,62 @@ struct LanTestView: View {
 
 struct InviteView: View {
     let inviteText: String
+    let hostIP: String
+    @Binding var port: String
+    @Binding var password: String
+    @Binding var lanMode: String
+    @Binding var mode: String
     let onCopy: () -> Void
     let onExport: () -> Void
+    let onCopyIPOnly: () -> Void
+    let onCopyIPPortOnly: () -> Void
+    let onCopyJoinAddress: () -> Void
 
     var body: some View {
         VStack(alignment: .leading, spacing: 10) {
-            Text("Copy Invite Message")
+            Text("Invite Export")
                 .font(.headline)
+            GroupBox("Useful connection info") {
+                VStack(alignment: .leading, spacing: 8) {
+                    HStack {
+                        Text("Host IP: \(hostIP.isEmpty ? "HOST_LAN_IP" : hostIP)")
+                            .textSelection(.enabled)
+                        TextField("Port", text: $port)
+                            .textFieldStyle(.roundedBorder)
+                            .frame(width: 120)
+                        TextField("Server Password", text: $password)
+                            .textFieldStyle(.roundedBorder)
+                        Picker("LAN/VPN Mode", selection: $lanMode) {
+                            Text("LAN").tag("LAN")
+                            Text("VPN LAN").tag("VPN LAN")
+                            Text("Local server").tag("Local server")
+                        }
+                        .frame(width: 160)
+                    }
+                    Picker("Invite Mode", selection: $mode) {
+                        Text("IP Only").tag("ip_only")
+                        Text("IP:Port Only").tag("ip_port_only")
+                        Text("Short Invite").tag("short")
+                        Text("Full Useful Invite").tag("full")
+                    }
+                    .pickerStyle(.segmented)
+                }
+                .padding(4)
+            }
             ScrollView {
                 Text(inviteText)
                     .frame(maxWidth: .infinity, alignment: .leading)
                     .textSelection(.enabled)
                     .padding(8)
+                    .background(Color(nsColor: .textBackgroundColor))
+                    .clipShape(RoundedRectangle(cornerRadius: 6))
             }
             HStack {
                 Button("Copy Invite", action: onCopy)
-                Button("Export Invite", action: onExport)
+                Button("Export Invite .txt", action: onExport)
+                Button("Copy IP Only", action: onCopyIPOnly)
+                Button("Copy IP:Port Only", action: onCopyIPPortOnly)
+                Button("Copy Join Address", action: onCopyJoinAddress)
             }
         }
         .padding(12)

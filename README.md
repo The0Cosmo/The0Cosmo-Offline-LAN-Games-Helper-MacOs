@@ -114,6 +114,30 @@ The app includes a `Settings` tab with:
 
 Settings are saved locally with macOS user preferences or Application Support files and are never uploaded.
 
+## Tool Manager
+
+The app includes a Tool Manager in Settings that lets users hide or disable helper tools they do not use.
+
+This only changes the app interface. It does not uninstall external programs, delete games, delete saves, or remove system files.
+
+Hidden tools can be restored at any time from Settings.
+
+Optional macOS tools that can be hidden or disabled include Server Tools, LAN Test, Invite Export, Backup Tools, Controller Helper, Custom Games, and the main Support tab.
+
+Settings, About, Privacy, and Tool Manager are core pages and cannot be hidden.
+
+## Performance and Game Loading
+
+The app loads the supported game catalog once at startup and keeps the parsed game data in memory.
+
+It does not scan the whole disk and does not aggressively detect installed games at startup. Supported games are shown immediately. Installed-game detection is local and runs only when the user clicks `Refresh Installed Detection`.
+
+Use `Refresh Games` to reload the catalog manually after editing `games.json`.
+
+## Responsive UI
+
+The native SwiftUI interface uses system colors, scrollable long-text panels, a minimum window size, and readable system typography. Settings are always accessible from the header or Settings tab.
+
 ## Kiwi Logo
 
 The app icon and Settings logo use original kiwi-themed artwork generated locally by `make_icon_macos.py`:
@@ -163,7 +187,18 @@ This is not a scanner. It does not scan the internet, random IP ranges, or LAN r
 
 ## Invites
 
-Use `Copy Invite` or `Export Invite` to generate a ready-to-send message with the selected game name, host IP, port, and client join instructions.
+Invite Export creates a short shareable message with only useful connection information.
+
+Available invite modes:
+
+- IP Only
+- IP:Port Only
+- Short Invite
+- Full Useful Invite
+
+Invite Export can copy the IP only, copy IP:Port, copy the join address, copy the invite, or export a short `.txt` file. It can include a server password only when the user manually enters one.
+
+Invite Export does not include long tutorials, license text, privacy text, donation links, or unrelated setup instructions.
 
 ## Backups
 
