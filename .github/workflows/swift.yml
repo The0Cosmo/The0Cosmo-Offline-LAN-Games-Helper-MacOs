@@ -1,0 +1,31 @@
+name: Swift macOS Build Check
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
+jobs:
+  build:
+    runs-on: macos-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Build macOS app
+        run: |
+          chmod +x build_macos.sh
+          ./build_macos.sh
+
+      - name: Upload macOS build artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: Offline-LAN-Games-Helper-macOS
+          path: |
+            dist/Offline LAN Games Helper.app
+            dist/Offline LAN Games Helper.dmg
